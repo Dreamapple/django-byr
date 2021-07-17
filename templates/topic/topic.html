@@ -90,7 +90,7 @@
     <div class="box" style="border-bottom: 0px;">
         <div class="header">
             <div class="fr">
-                <a href="{% url 'member' topic_obj.author.username  %}">
+                <a href="/member/{{topic_obj.author.username}}">
                     <img src="{{ topic_obj.author.avatar }}" class="rounded avatar" border="0"
                          align="default">
                 </a>
@@ -106,7 +106,7 @@
                     <li class="fa fa-chevron-down">&nbsp;{{ topic_obj.dislike_num }}</li>
                 </a>
             </div> &nbsp;
-            <small class="gray"><a href="{% url 'member' topic_obj.author.username  %}">{{ topic_obj.author.username }}</a> · {{ topic_obj.add_time }} · {{ topic_obj.click_num }} 次点击</small>
+            <small class="gray"><a href="/member/{{topic_obj.author.username}}">{{ topic_obj.author.username }}</a> · {{ topic_obj.add_time }} · {{ topic_obj.click_num }} 次点击</small>
         </div>
         <div class="cell">
             <div class="topic_content">
@@ -167,7 +167,7 @@
                                     &nbsp;&nbsp; <span
                                         class="badge badge-pill badge-secondary">{{ forloop.counter }}</span></div>
                                 <div class="sep3"></div>
-                                <strong><a href="{% url 'member' obj.author.username %}"
+                                <strong><a href="/member/{{obj.author.username}}"
                                            class="dark">{{ obj.author.username }}</a></strong>&nbsp; &nbsp;<span
                                     class="ago">{{ obj.add_time }}</span>
                                 <div class="sep5"></div>

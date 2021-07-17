@@ -58,13 +58,15 @@
 {% endblock %}
 {% block main %}
     <div class="box">
-        <div class="node_header" style="background-color: {{ node_obj.header_color }};">
+        <div class="node_header" style="padding-left: 20px; background-color: {{ node_obj.header_color }};">
+            {% if node_obj.avatar %}
             <div class="node_avatar">
                 <div style="float: left; display: inline-block; margin-right: 10px; margin-bottom: initial!important;">
                     <img src="{{ node_obj.avatar }}" border="0" align="default"
                          width="72">
                 </div>
             </div>
+            {% endif %}
             <div class="node_info">
                 <div class="fr f12">
                     <span>主题总数</span>
@@ -106,7 +108,7 @@
                     <tbody>
                     <tr>
                         <td width="48" valign="top" align="center">
-                            <a href="{% url 'member' obj.author.username %}">
+                            <a href="/member/{{obj.author.username}}">
                                 <img src="{{ obj.author.avatar }}" class="rounded" alt="{{ obj.author.username }}"
                                      width="48px" height="48px" border="0" align="default">
                             </a>
@@ -121,12 +123,12 @@
                             <a class="node"
                                href="{% url 'node' obj.category.code %}">{{ obj.category.name }}</a> &nbsp;•&nbsp;
                             <strong>
-                                <a href="{% url 'member' obj.author.username %}">{{ obj.author.username }}</a>
+                                <a href="/member/{{obj.author.username}}">{{ obj.author.username }}</a>
                             </strong>
                             {% if obj.last_comment_user %}
                                 &nbsp;•&nbsp; {{ obj.last_comment_time }} &nbsp;•&nbsp; 最后回复来自
                                 <strong>
-                                    <a href="{% url 'member' obj.last_comment_user %}">{{ obj.last_comment_user }}</a>
+                                    <a href="/member/{{ obj.last_comment_user }}">{{ obj.last_comment_user }}</a>
                                 </strong>
                             {% endif %}
                         </span>

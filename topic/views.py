@@ -17,8 +17,16 @@ from .models import TopicCategory, Topic, NodeLink, Comments
 from operation.models import TopicVote, FavoriteNode
 from user.models import UserFollowing
 from .forms import NewTopicForm, MarkdownPreForm, CheckNodeForm
+from django.core import serializers
+
+from byr_api.byr_api import ByrApi
 
 User = get_user_model()
+
+api = ByrApi()
+
+
+
 # Create your views here.
 
 exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', 'markdown.extensions.tables',
@@ -27,19 +35,18 @@ exts = ['markdown.extensions.extra', 'markdown.extensions.codehilite', 'markdown
 
 class IndexView(View):
     def get(self, request):
-        current_tab = request.GET.get('tab', 'tech')
-        category_obj = TopicCategory.objects.filter(category_type=1)
+        current_tab = request.GET.get('tab', 'hot')
+        category_obj = api.get_category()
         if current_tab == 'hot':
-            category_obj.hot = True
-            topic_obj = Topic.objects.select_related('author', 'category').all().order_by('-comment_num')[0:30]
+            topic_obj = api.topten().v2ex_json()
             return render(request, 'topic/index.html', locals())
-        category_children_obj = TopicCategory.objects.filter(parent_category__code=current_tab)
-        if current_tab == 'tech':
-            topic_obj = Topic.objects.select_related('author', 'category').all().order_by('-add_time')[0:30]
         else:
-            topic_obj = Topic.objects.select_related('author', 'category').filter(
-                category__parent_category__code=current_tab).order_by('-add_time')[0:30]
-        return render(request, 'topic/index.html', locals())
+            sub = request.GET.get('sub')
+            category_children_obj, topic_obj = api.get_subcategory(current_tab, sub)
+            if len(category_children_obj) > 0:
+                category_obj.hot = False
+            return render(request, 'topic/tab.html', locals())
+        
 
 
 class NewTopicView(View):
@@ -94,9 +101,8 @@ class RecentView(View):
     def get(self, request):
         current_page = request.GET.get('p', '1')
         current_page = int(current_page)
-        topic_obj = Topic.objects.select_related('author', 'category').all().order_by('-add_time')
-        page_obj = Paginator(current_page, topic_obj.count())
-        topic_obj = topic_obj[page_obj.start:page_obj.end]
+        topic_obj = api.timeline(current_page).v2ex_json()
+        page_obj = Paginator(current_page, 600)
         page_str = page_obj.page_str(reverse('recent') + '?')
         return render(request, 'topic/recent.html', locals())
 
@@ -106,15 +112,17 @@ class NodeView(View):
         current_page = request.GET.get('p', '1')
         current_page = int(current_page)
         try:
-            node_obj = TopicCategory.objects.get(code=node_code, category_type=2)
+            node = api.section(node_code, current_page)
+            node_obj = node.v2ex_node_obj()
+            topic_obj = node.v2ex_topic_obj()
+
+            # node_obj = TopicCategory.objects.get(code=node_code, category_type=2)
             if request.session.get('user_info'):
                 node_obj.favorite = FavoriteNode.objects.values_list('favorite').filter(
                     user_id=request.session.get('user_info')['uid'],
                     node=node_obj).first()
-            topic_obj = Topic.objects.select_related('author', 'category').filter(category=node_obj).order_by(
-                '-add_time')
-            page_obj = Paginator(current_page, topic_obj.count())
-            topic_obj = topic_obj[page_obj.start:page_obj.end]
+            # topic_obj = Topic.objects.select_related('author', 'category').filter(category=node_obj).order_by('-add_time')
+            page_obj = Paginator(current_page, node_obj["total"]*30)
             page_str = page_obj.page_str(reverse('node', args=(node_code,)) + '?')
             return render(request, 'topic/node.html', locals())
         except TopicCategory.DoesNotExist:
@@ -144,25 +152,35 @@ class NodeLinkView(View):
 class TopicView(View):
     def get(self, request, topic_sn):
         try:
-            topic_obj = Topic.objects.get(topic_sn=topic_sn)
-            # 添加其他属性
-            topic_obj.like_num = TopicVote.objects.filter(vote=1, topic=topic_obj).count()
-            topic_obj.dislike_num = TopicVote.objects.filter(vote=0, topic=topic_obj).count()
-            topic_obj.favorite_num = TopicVote.objects.filter(favorite=1, topic=topic_obj).count()
-            comments_obj = Comments.objects.select_related('author').filter(topic=topic_obj)
-            now = datetime.now()
-            if request.session.get('user_info'):
-                topic_obj.thanks = TopicVote.objects.values_list('thanks').filter(topic=topic_obj,
-                                                                                  user_id=
-                                                                                  request.session.get('user_info')[
-                                                                                      'uid']).first()
-                topic_obj.favorite = TopicVote.objects.values_list('favorite').filter(topic=topic_obj,
+            if '_' not in topic_sn:
+                topic_obj = Topic.objects.get(topic_sn=topic_sn)
+                # 添加其他属性
+                topic_obj.like_num = TopicVote.objects.filter(vote=1, topic=topic_obj).count()
+                topic_obj.dislike_num = TopicVote.objects.filter(vote=0, topic=topic_obj).count()
+                topic_obj.favorite_num = TopicVote.objects.filter(favorite=1, topic=topic_obj).count()
+                comments_obj = Comments.objects.select_related('author').filter(topic=topic_obj)
+                now = datetime.now()
+                if request.session.get('user_info'):
+                    topic_obj.thanks = TopicVote.objects.values_list('thanks').filter(topic=topic_obj,
                                                                                       user_id=
                                                                                       request.session.get('user_info')[
                                                                                           'uid']).first()
-            # 使用F 自增此字段 增加一次阅读数量
-            Topic.objects.filter(topic_sn=topic_sn).update(click_num=F('click_num') + 1)
-            return render(request, 'topic/topic.html', locals())
+                    topic_obj.favorite = TopicVote.objects.values_list('favorite').filter(topic=topic_obj,
+                                                                                          user_id=
+                                                                                          request.session.get('user_info')[
+                                                                                              'uid']).first()
+                # 使用F 自增此字段 增加一次阅读数量
+                Topic.objects.filter(topic_sn=topic_sn).update(click_num=F('click_num') + 1)
+                return render(request, 'topic/topic.html', locals())
+            else:
+                current_page = request.GET.get('p', '1')
+                current_page = int(current_page)
+                board, gid = topic_sn.rsplit("_", 1)
+                article = api.article(board, int(gid), current_page)
+                topic_obj = article.v2ex_json()
+                comments_obj = article.v2ex_comments_obj()
+                return render(request, 'topic/topic.html', locals())
+
         except Topic.DoesNotExist:
             raise Http404("topic does not exist")
 
