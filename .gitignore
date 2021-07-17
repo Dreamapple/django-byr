@@ -1,0 +1,11 @@
+# pycache
+/__pycache__
+*/__pycache__/*
+**/__pycache__
+env
+
+# .idea
+/.idea
+
+#db.sqlite3
+#db.sqlite3
