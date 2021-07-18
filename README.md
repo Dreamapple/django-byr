@@ -1,9 +1,3 @@
-# FakeV2EX
-Django 2.0 写的仿V2EX社区  纯技术交流 联系方式: QQ 435968679
-
-## Demo地址
-[http://fv2ex.izhihu.me](http://fv2ex.izhihu.me)
-* 仅供测试。。求大佬别DDos
 
 ## 完成功能
 * Topic 展示
@@ -56,9 +50,9 @@ Django 2.0 写的仿V2EX社区  纯技术交流 联系方式: QQ 435968679
 * ...... 目前能想到的暂时就这些吧
 
 ## 如何部署
-* install python3.6
-* git clone https://github.com/lgphone/FakeV2EX
-* cd FakeV2EX && pip install -r re.txt
+* install python3.8
+* git clone 
+* cd && pip install -r re.txt
 * 修改数据库，Redis连接地址
 * python manage.py makemigrations &&  python manage.py migrate
 * python manage.py createsuperuser
