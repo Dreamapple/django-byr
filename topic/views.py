@@ -117,13 +117,14 @@ class NodeView(View):
             topic_obj = node.v2ex_topic_obj()
 
             # node_obj = TopicCategory.objects.get(code=node_code, category_type=2)
-            if request.session.get('user_info'):
-                node_obj.favorite = FavoriteNode.objects.values_list('favorite').filter(
-                    user_id=request.session.get('user_info')['uid'],
-                    node=node_obj).first()
+            # if request.session.get('user_info'):
+            #     node_obj["favorite"] = FavoriteNode.objects.values_list('favorite').filter(
+            #         user_id=request.session.get('user_info')['uid'],
+            #         node=node_obj).first()
             # topic_obj = Topic.objects.select_related('author', 'category').filter(category=node_obj).order_by('-add_time')
             page_obj = Paginator(current_page, node_obj["total"]*30)
-            page_str = page_obj.page_str(reverse('node', args=(node_code,)) + '?')
+            param = reverse('node', args=(node_code,)) + '?'
+            page_str = page_obj.page_str(param)
             return render(request, 'topic/node.html', locals())
         except TopicCategory.DoesNotExist:
             raise Http404("node does not exist")
@@ -176,9 +177,16 @@ class TopicView(View):
                 current_page = request.GET.get('p', '1')
                 current_page = int(current_page)
                 board, gid = topic_sn.rsplit("_", 1)
-                article = api.article(board, int(gid), current_page)
-                topic_obj = article.v2ex_json()
-                comments_obj = article.v2ex_comments_obj()
+                article_1 = api.article(board, int(gid), 1)
+                topic_obj = article_1.v2ex_json()
+                if current_page == 1:
+                    comments_obj = article_1.v2ex_comments_obj()
+                else:
+                    article = api.article(board, int(gid), current_page)
+                    comments_obj = article.v2ex_comments_obj()
+
+                page_obj = Paginator(current_page, topic_obj["page_count"] * 10, 10)
+                page_str = page_obj.page_str(reverse('topic', args=(topic_sn,)) + '?')
                 return render(request, 'topic/topic.html', locals())
 
         except Topic.DoesNotExist:

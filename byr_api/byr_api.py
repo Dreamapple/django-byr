@@ -183,7 +183,7 @@ class Article(BasePage):
             "last_comment_user": "",
             "last_comment_time": None,
             "title": data["title"],
-            "markdown_content": data["articles"][0]["content"],
+            "markdown_content": data["articles"][0]["content"].replace(' src="/', ' src="https://bbs.byr.cn/').replace(' href="/', ' href="https://bbs.byr.cn/'),
             "add_time": data["head"]["time"],
             "update_time": None
         }
@@ -192,11 +192,18 @@ class Article(BasePage):
         topic_obj["dislike_num"] = data["articles"][0].get("votedown_count", "0")
         topic_obj["favorite_num"] = 0
         topic_obj["thanks"] = 0 
+        topic_obj["page_count"] = data["pagination"]["total"]
         return topic_obj
 
     def v2ex_comments_obj(self):
-        articles = self.response_.json()["data"]["articles"][1:]
-        ret = []
+        data = self.response_.json()["data"]
+        current_page = int(data["pagination"]["current"])
+
+        if current_page == 1:
+            articles = data["articles"][1:]
+        else:
+            articles = data["articles"]
+        ret = List()
 
         for index, article in enumerate(articles, start=1):
             comment = {
@@ -207,9 +214,24 @@ class Article(BasePage):
                 },
                 "id": article["id"],
                 "add_time": article["time"],
-                "content": article["content"]
+                "content": article["content"],
+
+                "badge": article["pos"]
             }
             ret.append(comment)
+
+        total_page = int(data["pagination"]["total"])
+        if total_page == 1:
+            ret.count = len(articles)
+            ret.last_comment_time = articles[-1]["time"] if len(articles) > 0 else None
+        elif current_page == total_page:
+            ret.count = int(articles[-1]["pos"])
+            ret.last_comment_time = articles[-1]["time"]
+        else:
+            ret.count = str((total_page-1) * 10) + '+'
+            ret.last_comment_time = "现在"
+
+
         return ret
 
 

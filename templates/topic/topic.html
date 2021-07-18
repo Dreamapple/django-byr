@@ -137,10 +137,12 @@
     <div class="sep20"></div>
     {% if comments_obj %}
         <div class="box">
+            {% if comments_obj.count %}
             <div class="cell">
                 <span class="gray">{{ comments_obj.count }} 个回复 &nbsp;<strong
-                        class="snow">|</strong> &nbsp;直到 {{ now }}</span>
+                        class="snow">|</strong> &nbsp;直到 {{ comments_obj.last_comment_time }}</span>
             </div>
+            {% endif %}
             {% for obj in comments_obj %}
                 <div class="cell">
                     <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -165,7 +167,7 @@
                                             src="/static/img/reply.png" align="absmiddle" border="0" alt="Reply"></a>
                                     {% endif %}
                                     &nbsp;&nbsp; <span
-                                        class="badge badge-pill badge-secondary">{{ forloop.counter }}</span></div>
+                                        class="badge badge-pill badge-secondary">{{ obj.badge }}</span></div>
                                 <div class="sep3"></div>
                                 <strong><a href="/member/{{obj.author.username}}"
                                            class="dark">{{ obj.author.username }}</a></strong>&nbsp; &nbsp;<span
@@ -178,6 +180,11 @@
                     </table>
                 </div>
             {% endfor %}
+        </div>
+        <div class="cell" style="background-color: #f9f9f9; padding: 10px 10px 10px 20px;">
+            <ul class="pagination pagination-sm" style="margin-bottom:0;">
+                {{ page_str }}
+            </ul>
         </div>
     {% else %}
         <div class="box transparent">
