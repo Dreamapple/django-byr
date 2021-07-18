@@ -51,7 +51,7 @@ AUTH_USER_MODEL = "user.UserProfile"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # 'middle.custom_middle.CountOnlineMiddlewareMixin',
+    'middle.custom_middle.CountOnlineMiddlewareMixin',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -184,7 +184,7 @@ EMAIL_HOST_USER = '1215018938@qq.com'
 # 在邮箱中设置的客户端授权密码
 EMAIL_HOST_PASSWORD = ''
 # 收件人看到的发件人
-EMAIL_FROM = '假的V2EX<luremind@sina.com>'
+EMAIL_FROM = 'BYR镜像<byr@vivy.xyz>'
 
 # 主域
 BASE_DOMAIN = 'http://127.0.0.1:8000'

@@ -266,6 +266,28 @@ class TimeLine(BasePage):
 
         return ret;
 
+class Member(BasePage):
+    def success(self):
+        return self.response_.json()["success"]
+
+    def online_status(self):
+        return self.response_.json()["data"]["is_online"]
+
+    def user_obj(self):
+        data = self.response_.json()["data"]
+        ret = {
+            "avatar": data["face_url"],
+            "username": data["id"],
+            "date_joined": datetime.fromtimestamp(data["last_login_time"]).isoformat(),
+            "location": data["last_login_ip"],
+            "last_login_time": datetime.fromtimestamp(data["last_login_time"]).isoformat(),
+            "life": data["life"],
+            "post_num": data["post_count"]
+        }
+
+        return ret;
+
+
 class List(list):
     pass
 
@@ -382,6 +404,11 @@ class ByrApi:
         topic_obj_list.hot = False
 
         return category_children_obj, topic_obj_list;
+
+    def member(self, name):
+
+        url = "https://bbs.byr.cn/n/b/user/query/%s.json" % name
+        return Member(self.sess_.get(url))
 
 
 

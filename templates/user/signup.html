@@ -35,7 +35,10 @@
 {% endblock %}
 {% block main %}
     <div class="box">
-        <div class="header"><a href="{% url 'index' %}">V2EX</a> <span class="chevron">&nbsp;›&nbsp;</span> 注册</div>
+        <div class="header"><a href="{% url 'index' %}">BYR</a> <span class="chevron">&nbsp;›&nbsp;</span> 注册</div>
+            <div class="problem">
+                因为是镜像站，注册也不能发帖，还要注册吗?
+            </div>
         {% if has_error %}
             <div class="problem">请解决以下问题然后再提交：
                 <ul>

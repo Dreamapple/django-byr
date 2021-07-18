@@ -58,7 +58,11 @@
                         <h1 style="margin-bottom: 5px;">{{ user_obj.username }}</h1>
                         <span class="bigger"></span>
                         <div class="sep10"></div>
-                        <span class="gray"><li class="fa fa-time"></li> &nbsp; V2EX 第 {{ user_obj.id }} 号会员，加入于 {{ user_obj.date_joined }}，今日活跃度排名 <a href="/top/dau">407</a></span>
+                        {% if user_obj.id and user_obj.date_joined %}
+                        <span class="gray"><li class="fa fa-time"></li> &nbsp; BYR 第 {{ user_obj.id }} 号会员，加入于 {{ user_obj.date_joined }}，今日活跃度排名 <a href="/top/dau">407</a></span>
+                        {% else %}
+                        <span class="gray"><li class="fa fa-time"></li> &nbsp; BYR 生命力 {{ user_obj.life }} ，上次登录时间 {{ user_obj.last_login_time }}，全站发帖数 {{ user_obj.post_num }}</span>
+                        {% endif %}
                     </td>
                 </tr>
             </tbody>

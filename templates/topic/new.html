@@ -52,9 +52,9 @@
         </div>
     {% endif %}
     {% if topic_node_code %}
-        <div class="header"><a href="{% url 'index' %}">V2EX</a> <span class="chevron">&nbsp;›&nbsp;</span> <a href="{% url 'node' node_obj.code %}">{{ node_obj.name }}</a> <span class="chevron">&nbsp;›&nbsp;</span> 创建新主题</div>
+        <div class="header"><a href="{% url 'index' %}">BYR</a> <span class="chevron">&nbsp;›&nbsp;</span> <a href="{% url 'node' node_obj.code %}">{{ node_obj.name }}</a> <span class="chevron">&nbsp;›&nbsp;</span> 创建新主题</div>
     {% else %}
-        <div class="cell"><a href="{% url 'index' %}">V2EX</a> <span class="chevron">&nbsp;›&nbsp;</span> 创作新主题</div>
+        <div class="cell"><a href="{% url 'index' %}">BYR</a> <span class="chevron">&nbsp;›&nbsp;</span> 创作新主题</div>
     {% endif %}
     <form method="POST" action="{% url 'new' %}" id="compose">
         {% csrf_token %}
@@ -107,7 +107,7 @@
             <div class="sep10"></div>
             </li>
             <li><div class="fr" style="margin-top: -5px; margin-right: 5px;"><img src="/static/img/markdown.png" border="0" width="32"></div><span class="f13">正文</span><div class="sep10"></div>
-            可以在正文中为你要发布的主题添加更多细节。V2EX 支持 <span style="font-family: Consolas, 'Panic Sans', mono"><a href="https://help.github.com/articles/github-flavored-markdown" target="_blank">GitHub Flavored Markdown</a></span> 文本标记语法。
+            可以在正文中为你要发布的主题添加更多细节。BYR 支持 <span style="font-family: Consolas, 'Panic Sans', mono"><a href="https://help.github.com/articles/github-flavored-markdown" target="_blank">GitHub Flavored Markdown</a></span> 文本标记语法。
             <div class="sep10"></div>
             在正式提交之前，你可以点击本页面左下角的“预览主题”来查看 Markdown 正文的实际渲染效果。
             <div class="sep10"></div>

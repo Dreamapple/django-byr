@@ -10,10 +10,10 @@ from utils.check_code import create_validate_code
 from .models import UserProfile, UserFollowing
 from operation.models import TopicVote, FavoriteNode, Topic, UserDetails, SignedInfo
 from .forms import SignupForm, SigninForm
-
+from byr_api.byr_api import ByrApi
 
 # Create your views here.
-
+api = ByrApi()
 
 def check_code(request):
     """
@@ -175,4 +175,16 @@ class MemberView(View):
             return render(request, 'user/member.html', locals())
         # 没有此用户，指向没有的连接，返回404
         except UserProfile.DoesNotExist:
+            pass
+
+        member = api.member(username)
+        if not member.success():
             raise Http404("Not Find This User")
+
+
+        online_status = member.online_status()
+
+        user_obj = member.user_obj()
+
+        return render(request, 'user/member.html', locals())
+

@@ -21,7 +21,7 @@
 {% endblock %}
 {% block main %}
     <div class="box">
-        <div class="cell"><a href="{% url 'index' %}">V2EX</a> <span class="chevron">&nbsp;›&nbsp;</span> 日常任务</div>
+        <div class="cell"><a href="{% url 'index' %}">BYR</a> <span class="chevron">&nbsp;›&nbsp;</span> 日常任务</div>
         {% if request.session.user_info.daily_mission %}
             <div class="message">已成功领取每日登录奖励</div>
         {% endif %}

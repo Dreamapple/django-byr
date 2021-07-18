@@ -15,6 +15,9 @@ class CountOnlineMiddlewareMixin(MiddlewareMixin):
         else:
             ip = request.META['REMOTE_ADDR']
 
+        request.current_visitor_ip = ip
+
+        """
         # 判断用户是否登录
         if request.session.get('user_info', False):
             # 因为已经在session中配置了自动更新时间了，下面操作不需要
@@ -31,7 +34,9 @@ class CountOnlineMiddlewareMixin(MiddlewareMixin):
         # 如果用户不再看网页，session 和 cache 的key 会自动过期，自动删除
         all_keys = cache.keys("count_online_id_*")
         request.online_member_count = len(all_keys) if all_keys else 0
-        request.current_visitor_ip = ip
+        """
+
+        request.online_member_count = 1
 
     # 用来查看sql语句的debug 关闭
     # def process_response(self, request, response):
