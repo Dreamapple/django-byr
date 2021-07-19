@@ -17,7 +17,7 @@ class TopicVote(models.Model):
         (1, "True"),
     )
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
-    topic = models.ForeignKey(Topic, verbose_name="Topic", on_delete=models.CASCADE)
+    topic_s = models.CharField(max_length=50, verbose_name="Topic", null=True, blank=True)
     vote = models.IntegerField(choices=CHOICES, default=CHOICES[0][0], verbose_name="是否喜欢此贴")
     thanks = models.IntegerField(choices=CHOICES, default=CHOICES[0][0], verbose_name="是否感谢此贴")
     favorite = models.IntegerField(choices=CHOICES, default=CHOICES[0][0], verbose_name="是否收藏此贴")
@@ -27,7 +27,7 @@ class TopicVote(models.Model):
     class Meta:
         verbose_name = 'Topic和用户关联表'
         verbose_name_plural = verbose_name
-        unique_together = ('user', 'topic',)
+        unique_together = ('user', 'topic_s',)
 
     def __str__(self):
         return self.user.username
@@ -43,7 +43,7 @@ class FavoriteNode(models.Model):
         (1, "True"),
     )
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
-    node = models.ForeignKey(TopicCategory, verbose_name="Topic", on_delete=models.CASCADE)
+    node_s = models.CharField(max_length=50, verbose_name="Topic", null=True, blank=True)
     favorite = models.IntegerField(choices=CHOICES, default=CHOICES[0][0], verbose_name="是否收藏此节点")
     add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
     update_time = models.DateTimeField(auto_now=True, verbose_name="更新时间")
@@ -51,7 +51,7 @@ class FavoriteNode(models.Model):
     class Meta:
         verbose_name = '用户和分类关联表'
         verbose_name_plural = verbose_name
-        unique_together = ('user', 'node',)
+        unique_together = ('user', 'node_s',)
 
     def __str__(self):
         return self.user.username

@@ -50,8 +50,8 @@ class Topic(models.Model):
     """
     Topic主表
     """
-    category = models.ForeignKey(TopicCategory, verbose_name="Go分类", on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name="Topic作者", on_delete=models.CASCADE)
+    category_s = models.CharField(max_length=50, verbose_name="Go分类", null=True, blank=True)
+    author_s = models.CharField(max_length=50, verbose_name="Topic作者", null=True, blank=True)
     topic_sn = models.CharField(max_length=50, unique=True, verbose_name="Topic唯一sn")
     click_num = models.IntegerField(default=0, verbose_name="Topic点击数")
     # 每次用户评论，把此字段+1 可以获取评论总数
@@ -77,8 +77,8 @@ class NodeLink(models.Model):
     """
     NodeLink主表
     """
-    category = models.ForeignKey(TopicCategory, verbose_name="Node分类", on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name="Link作者", on_delete=models.CASCADE)
+    category_s = models.CharField(max_length=50, verbose_name="Node分类", null=True, blank=True)
+    author_s = models.CharField(max_length=50, verbose_name="Link作者", null=True, blank=True)
     title = models.CharField(default="", max_length=50, verbose_name="Link 标题")
     link = models.CharField(default="", max_length=50, unique=True, verbose_name="连接地址")
     desc = models.CharField(default="", max_length=120, verbose_name="Link 简介")
@@ -97,10 +97,11 @@ class Comments(models.Model):
     """
     Comments 评论表
     """
-    topic = models.ForeignKey(Topic, verbose_name="Go分类", on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name="Topic作者", on_delete=models.CASCADE)
+    topic_s = models.CharField(max_length=50, verbose_name="Topic ID", null=True, blank=True)
+    author_s = models.CharField(max_length=50, verbose_name="Topic 作者", null=True, blank=True)
     content = models.TextField(max_length=20000, null=True, blank=True, verbose_name="Topic 评论")
     add_time = models.DateTimeField(default=datetime.now, verbose_name="添加时间")
+
 
     class Meta:
         verbose_name = 'Comments 评论表'

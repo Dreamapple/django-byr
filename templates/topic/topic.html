@@ -99,10 +99,10 @@
             <div class="sep10"></div>
             <h1>{{ topic_obj.title|safe }}</h1>
             <div id="topic_votes" class="votes">
-                <a href="javascript:" onclick="upVoteTopic('{{ topic_obj.topic_sn }}');" class="vote">
+                <a href="javascript:" onclick="alert('这个按钮只是装饰品');" class="vote">
                     <li class="fa fa-chevron-up">&nbsp;{{ topic_obj.like_num }}</li>
                 </a> &nbsp;
-                <a href="javascript:" onclick="downVoteTopic('{{ topic_obj.topic_sn }}');" class="vote">
+                <a href="javascript:" onclick="alert('这也是个装饰');" class="vote">
                     <li class="fa fa-chevron-down">&nbsp;{{ topic_obj.dislike_num }}</li>
                 </a>
             </div> &nbsp;
@@ -203,27 +203,18 @@
             <div class="cell">
                 <form method="post" action="{% url 'topic' topic_sn %}">
                 {% csrf_token %}
-                <textarea name="content" maxlength="10000" class="mll" id="reply_content"
+                <textarea disabled=true name="content" maxlength="10000" class="mll" id="reply_content"
                           style="overflow: hidden; word-wrap: break-word; resize: none; height: 112px;"></textarea>
                     <div class="sep10"></div>
                     <div class="fr">
                         <div class="sep5"></div>
                         <span class="gray">请尽量让自己的回复能够对别人有帮助</span></div>
                     <input type="hidden" value="10476" name="once">
-                    <input type="submit" value="回复" class="btn btn-sm">
-{#                    <script type="text/javascript">#}
-{#                        $("#reply_content").on('input', function (e) {#}
-{#                            saveReplyDraft(435882, 94579);#}
-{#                        });#}
-{#                        var keyPressed = 0;#}
-{#                        $("#reply_content").keydown(function (e) {#}
-{#                            keyPressed = keyPressed + 1;#}
-{#                            if ((e.ctrlKey || e.metaKey) && e.which === 13) {#}
-{#                                e.preventDefault();#}
-{#                                $("#reply_content").parent().submit();#}
-{#                            }#}
-{#                        });#}
-{#                    </script>#}
+                    <!-- <input type="submit" value="回复" class="btn btn-sm"> -->
+                    <input onclick="alert('not supported yet')" value="回复" class="btn btn-sm" style="
+    width: 50px;
+    color: #999;
+">
                 </form>
             </div>
             <div class="inner">
@@ -290,7 +281,9 @@
             type: 'post',
             data: {'topic_sn': topic_sn},
             success: function (recv) {
+                console.log(recv);
                 recv = JSON.parse(recv);
+                console.log(recv);
                 if (recv.changed) {
                     console.log('成功');
                     $('#favorite').html(recv.data);

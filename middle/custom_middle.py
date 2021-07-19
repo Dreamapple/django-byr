@@ -17,15 +17,17 @@ class CountOnlineMiddlewareMixin(MiddlewareMixin):
 
         request.current_visitor_ip = ip
 
-        """
+
         # 判断用户是否登录
         if request.session.get('user_info', False):
+            user_info = request.session.get('user_info', False)
+            # print("user_info:", user_info["uid"], session_key)
             # 因为已经在session中配置了自动更新时间了，下面操作不需要
             # # 在线的话每当用户访问页面要更新session 时间，防止session失效
             # request.session.set_expiry(SESSION_COOKIE_AGE)
             # 统计在线用户，先生成唯一key
-            online_key = 'count_online_id_{_id}_session_{_session}'.format(
-                _id=request.session.get('user_info')['uid'], _session=session_key)
+            online_key = 'count_online_id_{_id}'.format(
+                _id=request.session.get('user_info')['uid'])
             # 设置过期时间，或者重新设置过期时间
             cache.set(online_key, 'online', timeout=SESSION_COOKIE_AGE)
 
@@ -34,9 +36,6 @@ class CountOnlineMiddlewareMixin(MiddlewareMixin):
         # 如果用户不再看网页，session 和 cache 的key 会自动过期，自动删除
         all_keys = cache.keys("count_online_id_*")
         request.online_member_count = len(all_keys) if all_keys else 0
-        """
-
-        request.online_member_count = 1
 
     # 用来查看sql语句的debug 关闭
     # def process_response(self, request, response):

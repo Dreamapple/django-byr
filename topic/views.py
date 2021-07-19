@@ -94,9 +94,9 @@ class NewTopicView(View):
 
 
 class RecentView(View):
-    @method_decorator(login_auth)
-    def dispatch(self, request, *args, **kwargs):
-        return super(RecentView, self).dispatch(request, *args, **kwargs)
+    # @method_decorator(login_auth)
+    # def dispatch(self, request, *args, **kwargs):
+    #     return super(RecentView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         current_page = request.GET.get('p', '1')
@@ -185,6 +185,16 @@ class TopicView(View):
                     article = api.article(board, int(gid), current_page)
                     comments_obj = article.v2ex_comments_obj()
 
+                if request.session.get('user_info'):
+                    topic_obj["thanks"] = TopicVote.objects.values_list('thanks').filter(topic_s=topic_sn,
+                                                                                      user_id=
+                                                                                      request.session.get('user_info')[
+                                                                                          'uid']).first()
+                    topic_obj["favorite"] = TopicVote.objects.values_list('favorite').filter(topic_s=topic_sn,
+                                                                                          user_id=
+                                                                                          request.session.get('user_info')[
+                                                                                              'uid']).first()
+               
                 page_obj = Paginator(current_page, topic_obj["page_count"] * 10, 10)
                 page_str = page_obj.page_str(reverse('topic', args=(topic_sn,)) + '?')
                 return render(request, 'topic/topic.html', locals())
@@ -194,25 +204,17 @@ class TopicView(View):
 
     @method_decorator(login_auth)
     def post(self, request, topic_sn):
+        # todo 代理发布信息
         content = request.POST.get('content', None)
         if content is not None:
             try:
-                topic_obj = Topic.objects.select_related('author').get(topic_sn=topic_sn)
+                # topic_obj = Topic.objects.select_related('author_s').get(topic_sn=topic_sn)
                 content = bleach.clean(content)
-                comments_obj = Comments.objects.create(topic=topic_obj,
-                                                       author_id=request.session.get('user_info')['uid'],
+                comments_obj = Comments.objects.create(topic_s=topic_sn,
+                                                       author_s=request.session.get('user_info')['uid'],
                                                        content=content)
-                # 当前Topic 评论数 +1 使用F
-                topic_obj.comment_num = F('comment_num') + 1
-                # 修改当前Topic 最后评论信息
-                topic_obj.last_comment_time = comments_obj.add_time
-                topic_obj.last_comment_user = request.session.get('user_info')['username']
-                topic_obj.save()
                 # 发评论，对应余额变动 主题作者收到奖励，发回复者减去奖励
-                # 不是当前topic作者才会有变动
-                if topic_obj.author_id != request.session.get('user_info')['uid']:
-                    update_balance(request, update_type='reply', obj=topic_obj)
-                    update_balance(request, update_type='reply_recv', obj=topic_obj)
+                # update_balance(request, update_type='reply', obj=topic_obj)
                 return redirect(reverse('topic', args=(topic_sn,)))
             except Topic.DoesNotExist:
                 raise Http404("topic does not exist")

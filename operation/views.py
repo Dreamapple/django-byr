@@ -38,21 +38,20 @@ class TopicVoteView(View):
         if obj.is_valid():
             ret['changed'] = True
             topic_sn = obj.cleaned_data['topic_sn']
-            print(topic_sn)
             vote_action = obj.cleaned_data['vote_action']
-            topic_obj = Topic.objects.filter(topic_sn=topic_sn).first()
+
             flag = 0
             if vote_action == 'up':
                 flag = 1
             try:
-                topic_vote_obj = TopicVote.objects.get(user_id=request.session.get('user_info')['uid'], topic=topic_obj)
+                topic_vote_obj = TopicVote.objects.get(user_id=request.session.get('user_info')['uid'], topic_s=topic_sn)
                 topic_vote_obj.vote = flag
                 topic_vote_obj.save()
             except TopicVote.DoesNotExist:
                 topic_vote_obj = TopicVote()
                 topic_vote_obj.user_id = request.session.get('user_info')['uid']
                 topic_vote_obj.vote = flag
-                topic_vote_obj.topic = topic_obj
+                topic_vote_obj.topic_s = topic_sn
                 topic_vote_obj.save()
             ret['topic_sn'] = topic_sn
             ret['data'] = '''
@@ -62,8 +61,8 @@ class TopicVoteView(View):
                 <a href="javascript:" onclick="downVoteTopic('{_topic_sn}');" class="vote">
                 <li class="fa fa-chevron-down">&nbsp;{_dislike_num}</li>
                 </a>
-                '''.format(_like_num=TopicVote.objects.filter(vote=1, topic=topic_obj).count(),
-                           _dislike_num=TopicVote.objects.filter(vote=0, topic=topic_obj).count(),
+                '''.format(_like_num=TopicVote.objects.filter(vote=1, topic_s=topic_sn).count(),
+                           _dislike_num=TopicVote.objects.filter(vote=0, topic_s=topic_sn).count(),
                            _topic_sn=topic_sn, )
         else:
             ret['changed'] = False
@@ -87,9 +86,9 @@ class FavoriteTopicView(View):
         if obj.is_valid():
             ret['changed'] = True
             topic_sn = obj.cleaned_data['topic_sn']
-            topic_obj = Topic.objects.filter(topic_sn=topic_sn).first()
+
             try:
-                topic_vote_obj = TopicVote.objects.get(user_id=request.session.get('user_info')['uid'], topic=topic_obj)
+                topic_vote_obj = TopicVote.objects.get(user_id=request.session.get('user_info')['uid'], topic_s=topic_sn)
                 if topic_vote_obj.favorite == 1:
                     topic_vote_obj.favorite = 0
                     request.session['user_info']['favorite_topic_num'] -= 1
@@ -103,7 +102,7 @@ class FavoriteTopicView(View):
                 topic_vote_obj = TopicVote()
                 topic_vote_obj.user_id = request.session.get('user_info')['uid']
                 topic_vote_obj.favorite = 1
-                topic_vote_obj.topic = topic_obj
+                topic_vote_obj.topic_s = topic_sn
                 topic_vote_obj.save()
                 request.session['user_info']['favorite_topic_num'] += 1
                 ret['data'] = "&nbsp;取消收藏&nbsp;"
@@ -112,7 +111,9 @@ class FavoriteTopicView(View):
             ret['changed'] = False
             ret['data'] = obj.errors.as_json()
 
-        return HttpResponse(json.dumps(ret))
+        ret = json.dumps(ret)
+        print(ret)
+        return HttpResponse(ret)
 
 
 class ThanksTopicView(View):
@@ -130,12 +131,16 @@ class ThanksTopicView(View):
         if obj.is_valid():
             ret['changed'] = True
             topic_sn = obj.cleaned_data['topic_sn']
-            topic_obj = Topic.objects.select_related('author').filter(topic_sn=topic_sn).first()
+            try:
+                topic_obj = Topic.objects.select_related('author').filter(topic_sn=topic_sn).first()
+            except DoesNotExist:
+                # todo
+                topic_obj = ByrFileAPI.get_topic(topic_sn)
             # 判断不是此topic 的作者才可以感谢
             if topic_obj.author_id != request.session.get('user_info')['uid']:
                 try:
                     topic_vote_obj = TopicVote.objects.get(user_id=request.session.get('user_info')['uid'],
-                                                           topic=topic_obj)
+                                                           topic_s=topic_sn)
                     print(topic_vote_obj)
                     if topic_vote_obj.thanks == 1:
                         ret['changed'] = False
@@ -146,7 +151,7 @@ class ThanksTopicView(View):
                     topic_vote_obj = TopicVote()
                     topic_vote_obj.user_id = request.session.get('user_info')['uid']
                     topic_vote_obj.thanks = 1
-                    topic_vote_obj.topic = topic_obj
+                    topic_vote_obj.topic_s = topic_sn
                     topic_vote_obj.save()
                     # 感谢，金币变化
                     update_balance(request, update_type='thanks', obj=topic_obj)
@@ -536,6 +541,8 @@ class DailyRandomBalanceView(View):
             else:
                 # 昨天没有签到，设置为1
                 signed_day = 1
+
+            print("SignedInfo", request.session.get('user_info')['uid'], signed_day)
 
             # 创建签到记录
             SignedInfo.objects.create(

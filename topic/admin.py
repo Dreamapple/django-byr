@@ -6,11 +6,11 @@ from .models import Topic, TopicCategory, Comments, NodeLink
 
 class TopicAdmin(admin.ModelAdmin):
     # 要列出的字段
-    list_display = ('id', 'category', 'title', 'author', 'click_num', 'add_time')
+    list_display = ('id', 'category_s', 'title', 'author_s', 'click_num', 'add_time')
     # 可以搜索的字段
     search_fields = ('title', )
     # 列出可以编辑的字段
-    list_editable = ('click_num', 'category',)
+    list_editable = ('click_num', 'category_s',)
     # 右侧过滤条件
     list_filter = ('add_time',)
     # 根据某个字段排序
@@ -39,7 +39,7 @@ class TopicCategoryAdmin(admin.ModelAdmin):
 
 class CommentsAdmin(admin.ModelAdmin):
     # 要列出的字段
-    list_display = ('id', 'topic', 'author', 'content', 'add_time',)
+    list_display = ('id', 'topic_s', 'author_s', 'content', 'add_time',)
     # 可以搜索的字段
     search_fields = ('content', 'topic')
     # 列出可以编辑的字段
@@ -52,7 +52,7 @@ class CommentsAdmin(admin.ModelAdmin):
 
 class NodeLinkAdmin(admin.ModelAdmin):
     # 要列出的字段
-    list_display = ('id', 'category', 'author', 'title', 'link', 'desc', 'add_time',)
+    list_display = ('id', 'category_s', 'author_s', 'title', 'link', 'desc', 'add_time',)
     # 可以搜索的字段
     search_fields = ('title', 'link')
     # 列出可以编辑的字段

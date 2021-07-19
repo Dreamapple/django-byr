@@ -177,7 +177,7 @@ class Article(BasePage):
                 "user": data["head"]["poster"]["user_name"],
                 "avatar": data["head"]["poster"]["face_url"]
             },
-            "topic_sn": "",
+            "topic_sn": data["board"]["name"]+"_"+str(data["gid"]),
             "click_num": 0,
             "comment_num": None,
             "last_comment_user": "",
