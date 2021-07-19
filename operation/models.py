@@ -133,7 +133,7 @@ class SignedInfo(models.Model):
     class Meta:
         verbose_name = "用户签到"
         verbose_name_plural = verbose_name
-        unique_together = ('user', 'signed_day')
+        unique_together = ('user', 'date')
 
     def __str__(self):
         return self.user.username
